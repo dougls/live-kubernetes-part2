@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api
+  namespace: fiap-tasty
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-api
+  template:
+    metadata:
+      labels:
+        app: order-api
+    spec:
+      containers:
+      - name: order-api
+        image: dougosasco/orderapi:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 150m
+            memory: 80Mi
+        env:
+        - name: ASPNETCORE_URLS
+          value: "http://+:80"
+        - name: CONNECTION_STRING
+          value: "Host=$(DB_HOST);Port=$(DB_PORT);Database=$(POSTGRES_DB);Username=$(DB_USER);Password=$(DB_PASSWORD)"
+        envFrom:
+        - configMapRef:
+            name: app-cm
+        - secretRef:
+            name: db-secret
+            
